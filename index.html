@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Devoir Vue</title>
+
+    <link rel="stylesheet" href="js/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/app.css" />
+
+    <script src="js/lib/jquery/dist/jquery.min.js"></script>
+    <script src="js/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="js/lib/vue/dist/vue.js"></script>
+    <script src="js/lib/vue-resource/dist/vue-resource.js"></script>
+    <script src="js/lib/vue-router/dist/vue-router.js"></script>
+
+</head>
+<body>
+    <div id="app">
+        <div class="navbar">
+            <ul class="nav navbar-nav">
+                <li><a href="#" @click.prevent="evaluer">Evaluation</a></li>
+                <li><a href="#" @click.prevent="entrainer">Entrainement</a></li>
+                <li><a href="#" @click.prevent="obtenirResultats">Résultats</a></li>
+            </ul>
+        </div>
+        <div class="main">
+            <template v-if="affichage == 'resultats'">
+                <div class="table-multi" v-for="table in tables">
+                    <h4>Table de {{ table.nom }}</h4>
+                    <ul>
+                        <li v-for="operation in table.operations">
+                            {{ table.nom }} x {{ operation.facteur }} = {{ operation.produit }}
+                        </li>
+                    </ul>
+                </div>
+            </template>
+            <template v-else-if="affichage === 'question'">
+                
+            </template>
+        </div>
+    </div>
+
+    <script id="bloc-operation" type="text/x-template">
+        <h3>Question {{compteur_q}}</h3>
+        <p> {{ operation }} </p>
+        <ul class="options">
+            <li class="option" v-for="option in options">
+                <a href="#" @click="$emit('prochaineQuestion', option)">
+                    {{ option.valeur }}
+                </a>
+            </li>
+        </ul>
+    </script>
+
+    <script id="bloc-tables" type="text/x-template">
+        <div class="table-multi" v-for="table in tables">
+            <h4>Table de {{ table.nom }}</h4>
+            <ul>
+                <li v-for="operation in table.operations">
+                    {{ table.nom }} x {{ operation.facteur }} = {{ operation.produit }}
+                </li>
+            </ul>
+        </div>
+    </script>
+
+    <script>
+
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            tables: [],
+            compteur_q: 0,
+            reponses: [],
+            options: [],
+            affichage: "home"
+        },
+        methods: {
+            chargementDonnees(){
+                $.getJSON( "files/save/save.json", function( data ) {
+                    vue.tables = data.tables;
+                });
+            },
+            verificationReponses: function(reponses){
+                for (reponse in reponses){
+                    
+                }
+            },
+            prochaineQuestion: function(option){
+                this.reponses.push(option);
+                this.compteur_q++;
+            },
+            obtenirResultats(){
+                console.log(this.tables);
+                this.affichage = "resultats";
+            }
+        },
+        created(){
+            this.chargementDonnees();
+        }
+    })
+    </script>
+
+</body>
+</html>
