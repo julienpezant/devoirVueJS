@@ -54,3 +54,6 @@ résultats - (par table, par opération)
 		}
 	]
 }
+
+--appvue.xml--
+Plan de d'appli à importer sur draw.io

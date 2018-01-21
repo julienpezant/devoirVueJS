@@ -35,12 +35,31 @@
                 </div>
             </template>
             <template v-else-if="affichage === 'question'">
-                
+                <h4>Question {{ compteur_q + 1 }}</h4>
+                <div class="intitule"> {{ test[compteur_q].intitule }} </div>
+                <button @click.prevent="prochaineQuestion(test[compteur_q].options[0])">{{ test[compteur_q].options[0] }}</button>
+                <button @click.prevent="prochaineQuestion(test[compteur_q].options[1])">{{ test[compteur_q].options[1] }}</button>
+                <button @click.prevent="prochaineQuestion(test[compteur_q].options[2])">{{ test[compteur_q].options[2] }}</button>
             </template>
+            <template v-else-if="affichage === 'correction'">
+                <h4>Résultat du test</h4>
+                <p>Tu as eu {{ note }} réponses correctes sur 10. {{ commentaire_test }} </p>
+                <ul>
+                    <li v-for="reponse in test">
+                        <template v-if="reponse.reponse === reponse.selectionUtilisateur">
+                            <div class="correction bonneReponse">{{ reponse.intitule }} = {{ reponse.reponse }} est la bonne réponse!</div>
+                        </template>
+                        <template v-else="reponse.reponse === reponse.selectionUtilisateur">
+                            <div class="correction mauvaiseReponse">{{ reponse.intitule }} = {{ reponse.selectionUtilisateur }} n'est la bonne réponse. La bonne réponse était {{ reponse.reponse }}.</div>
+                        </template>
+                    </li>
+                </ul>
+            </template>
+
         </div>
     </div>
 
-    <script id="bloc-operation" type="text/x-template">
+    <!--<script id="bloc-operation" type="text/x-template">
         <h3>Question {{compteur_q}}</h3>
         <p> {{ operation }} </p>
         <ul class="options">
@@ -61,7 +80,7 @@
                 </li>
             </ul>
         </div>
-    </script>
+    </script>-->
 
     <script>
 
@@ -69,9 +88,13 @@
         el: '#app',
         data: {
             tables: [],
+            tables_evaluation: [],
+            tables_a_reviser: ["1","2","3","4","5","6","7","8","9","10"],
+            test: [],
+            note: 0,
+            commentaire_test: "",
             compteur_q: 0,
-            reponses: [],
-            options: [],
+            /*reponses: [],*/
             affichage: "home"
         },
         methods: {
@@ -80,19 +103,139 @@
                     vue.tables = data.tables;
                 });
             },
-            verificationReponses: function(reponses){
-                for (reponse in reponses){
-                    
+            resetTest(){
+                this.compteur_q = 0;
+                this.note = 0;
+                this.commentaire_test = "";
+                this.tables_evaluation = [];
+                this.test = [];
+            },
+            prochaineQuestion: function(previous_answer){
+                this.test[this.compteur_q].selectionUtilisateur = previous_answer;
+                this.compteur_q++;
+                if(this.compteur_q === 10){
+                    this.corrigerTest();
                 }
             },
-            prochaineQuestion: function(option){
-                this.reponses.push(option);
-                this.compteur_q++;
-            },
             obtenirResultats(){
-                console.log(this.tables);
+                this.resetTest();
                 this.affichage = "resultats";
+            },
+            evaluer(){
+                this.resetTest();
+                this.affichage = "question";
+                this.genererTest();
+            },
+            genererTest(){
+                this.obtenirTablesTest();
+                for(i = 0; i < 10; i++){
+                    this.genererChoix(); 
+                }   
+            },
+            obtenirTablesTest(){
+                for(indextable_r in this.tables_a_reviser){
+                    for(indextable_t in this.tables){
+                        if(this.tables_a_reviser[indextable_r] === this.tables[indextable_t].nom){
+                            this.tables_evaluation.push(JSON.parse(JSON.stringify(this.tables[indextable_t])));
+                        }
+                    }
+                }
+            },
+            genererChoix(){
+
+                //on sélectionne aléatoirement une opération dans les tables possibles, c'est à changer ultérieurement
+                var index_table = Math.floor(Math.random()* this.tables_evaluation.length);
+                var table = this.tables_evaluation[index_table];
+                var index_operation = Math.floor(Math.random()* table.operations.length);
+                var operation = table.operations[index_operation];
+
+                var intitule = table.nom + " x " + operation.facteur;
+                var reponse = operation.produit;
+
+                //génération des options
+                var options = this.genererFauxResultat(table.nom, operation.facteur, reponse);
+                options.push(reponse);
+
+                //on mélange les options qui seront proposés à l'utilisateur
+                options = this.melangerChoix(options);
+
+                //on retire l'operation des choix possibles (pour éviter les doublons de questions)
+                this.tables_evaluation[index_table].operations.splice(index_operation, 1);
+
+                //ajout de la question et des choix au test
+                this.test.push({ intitule:intitule, reponse:reponse, options:options, selectionUtilisateur:"-1"});
+            },
+            melangerChoix: function(options){
+                var j, x, i;
+                for (i = options.length - 1; i > 0; i--) {
+                    j = Math.floor(Math.random() * (i + 1));
+                    x = options[i];
+                    options[i] = options[j];
+                    options[j] = x;
+                }
+                return options;
+            },
+            genererFauxResultat: function(nom, facteur, produit){
+                var produit = parseInt(produit); //1
+                var nom = parseInt(nom); //1
+                var facteur = parseInt(facteur); //1
+
+                var option_1 = 0;
+                var option_2 = 0;
+
+                //on utilise ces variables pour rendre les options proposées plus aléatoires
+                var variation_1 = Math.floor(Math.random()*2);
+                var variation_2 = Math.floor(Math.random()*2);
+
+                //un multiple de nombre pair est toujours pair, donc on les traite séparément
+                var coeff_parite = 1;
+                if(nom % 2 === 0){
+                    coeff_parite = 2;
+                }
+                var tmp1 = Math.floor(Math.random() * nom / coeff_parite) * coeff_parite + coeff_parite;
+                var tmp2 = Math.floor(Math.random() * nom / coeff_parite) * coeff_parite + coeff_parite;
+
+                //pour ne pas avoir deux fois la meme option
+                if(tmp1 === tmp2){
+                    tmp2 += coeff_parite;
+                }
+                    
+                //quand le facteur est 0, cas spécial, on ne veut pas de nombre négatif en option
+                if (facteur === 0){
+                    option_1 = produit + Math.floor(tmp1/2) + 1;
+                    option_2 = produit + Math.floor(tmp1/2) + Math.floor(tmp2/2) + 2;
+                }else{
+                    if(variation_1 === 0){
+                        option_1 = produit + tmp1;
+                    }else{
+                        option_1 = produit + tmp1 * -1;
+                    }
+                    if(variation_2 === 0){
+                        option_2 = produit + tmp2;
+                    }else{
+                        option_2 = produit + tmp2 * -1;
+                    }
+                }
+                return [option_1.toString(), option_2.toString()];
+            },
+            corrigerTest(){
+                for(i in this.test){
+                    if(this.test[i].selectionUtilisateur === this.test[i].reponse){
+                        this.note++;
+                    }
+                }
+                if(this.note === 10){
+                    this.commentaire_test = "Félicitations!"
+                }else if(this.note >= 8){
+                    this.commentaire_test = "Bien joué!"
+                }else if(this.note >= 6){
+                    this.commentaire_test = "Pas mal!"
+                }else{
+                    this.commentaire_test = "Tu peux faire mieux, continue de t'entraîner!"
+                }
+                this.affichage = "correction";
             }
+
         },
         created(){
             this.chargementDonnees();
