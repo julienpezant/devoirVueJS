@@ -12,6 +12,7 @@
     <script src="js/lib/vue/dist/vue.js"></script>
     <script src="js/lib/vue-resource/dist/vue-resource.js"></script>
     <script src="js/lib/vue-router/dist/vue-router.js"></script>
+    <script src="js/lib/vue-ls/dist/vue-ls.js"></script>
 
 </head>
 <body>
@@ -55,32 +56,23 @@
                     </li>
                 </ul>
             </template>
+            <!-- Un clic sur un de ces boutons ajoute ou retire une table dans laquelle piocher des opérations, pour l'entraînement (voir console) -->
+            <template v-else-if="affichage === 'selectionTables'">
+                <button @click.prevent="modifierTablesRevision('1')">{{ 1 }}</button>
+                <button @click.prevent="modifierTablesRevision('2')">{{ 2 }}</button>
+                <button @click.prevent="modifierTablesRevision('3')">{{ 3 }}</button>
+                <button @click.prevent="modifierTablesRevision('4')">{{ 4 }}</button>
+                <button @click.prevent="modifierTablesRevision('5')">{{ 5 }}</button>
+                <button @click.prevent="modifierTablesRevision('6')">{{ 6 }}</button>
+                <button @click.prevent="modifierTablesRevision('7')">{{ 7 }}</button>
+                <button @click.prevent="modifierTablesRevision('8')">{{ 8 }}</button>
+                <button @click.prevent="modifierTablesRevision('9')">{{ 9 }}</button>
+                <button @click.prevent="modifierTablesRevision('10')">{{ 10 }}</button>
+                <button @click.prevent="lancerEntrainement"> Lancer l'entraînement</button>
+            </template>
 
         </div>
     </div>
-
-    <!--<script id="bloc-operation" type="text/x-template">
-        <h3>Question {{compteur_q}}</h3>
-        <p> {{ operation }} </p>
-        <ul class="options">
-            <li class="option" v-for="option in options">
-                <a href="#" @click="$emit('prochaineQuestion', option)">
-                    {{ option.valeur }}
-                </a>
-            </li>
-        </ul>
-    </script>
-
-    <script id="bloc-tables" type="text/x-template">
-        <div class="table-multi" v-for="table in tables">
-            <h4>Table de {{ table.nom }}</h4>
-            <ul>
-                <li v-for="operation in table.operations">
-                    {{ table.nom }} x {{ operation.facteur }} = {{ operation.produit }}
-                </li>
-            </ul>
-        </div>
-    </script>-->
 
     <script>
 
@@ -94,14 +86,23 @@
             note: 0,
             commentaire_test: "",
             compteur_q: 0,
-            /*reponses: [],*/
+            /*times: [0,0,0,0,0,0,0,0,0,0],*/
+            startTime: 0,
             affichage: "home"
         },
         methods: {
             chargementDonnees(){
-                $.getJSON( "files/save/save.json", function( data ) {
-                    vue.tables = data.tables;
-                });
+                if(localStorage.getItem("save") === null){
+                    $.getJSON( "files/save/save.json", function( data ) {
+                        console.log("no save");
+
+                        this.tables = data.tables;
+                        localStorage.setItem("save", JSON.stringify(data.tables));
+                    });
+                }else{
+                    console.log("save found");
+                    this.tables = JSON.parse(localStorage.getItem("save"));
+                }
             },
             resetTest(){
                 this.compteur_q = 0;
@@ -109,10 +110,17 @@
                 this.commentaire_test = "";
                 this.tables_evaluation = [];
                 this.test = [];
+                this.startTime = 0;
+                this.tables_a_reviser = ["1","2","3","4","5","6","7","8","9","10"];
             },
             prochaineQuestion: function(previous_answer){
                 this.test[this.compteur_q].selectionUtilisateur = previous_answer;
+                this.test[this.compteur_q].temps = Date.now() - this.startTime;
+                /*this.times[this.compteur_q] = Date.now() - this.startTime;*/
+
                 this.compteur_q++;
+                this.startTime = Date.now();
+
                 if(this.compteur_q === 10){
                     this.corrigerTest();
                 }
@@ -121,9 +129,29 @@
                 this.resetTest();
                 this.affichage = "resultats";
             },
+            entrainer(){
+                this.resetTest();
+                this.affichage = "selectionTables"
+            },
+            lancerEntrainement(){
+                this.affichage = "question";
+                this.startTime = Date.now();
+                this.genererTest();
+            },
+            modifierTablesRevision: function(value){
+                this.isActive = !this.isActive;
+                if($.inArray(value, this.tables_a_reviser) === -1){
+                    this.tables_a_reviser.push(value.toString());
+                }else{
+                    var index = this.tables_a_reviser.indexOf(value);
+                    this.tables_a_reviser.splice(index, 1);
+                }
+                console.log(this.tables_a_reviser);
+            },
             evaluer(){
                 this.resetTest();
                 this.affichage = "question";
+                this.startTime = Date.now();
                 this.genererTest();
             },
             genererTest(){
@@ -163,7 +191,7 @@
                 this.tables_evaluation[index_table].operations.splice(index_operation, 1);
 
                 //ajout de la question et des choix au test
-                this.test.push({ intitule:intitule, reponse:reponse, options:options, selectionUtilisateur:"-1"});
+                this.test.push({ intitule:intitule, nom: table.nom, facteur: operation.facteur, reponse:reponse, options:options, selectionUtilisateur:"-1", temps: 0});
             },
             melangerChoix: function(options){
                 var j, x, i;
@@ -216,9 +244,21 @@
                         option_2 = produit + tmp2 * -1;
                     }
                 }
+
+                //sécurité supplémentaire pour éviter des options inférieures à zéro
+                if(option_1 < 0){
+                    option_1 = produit + Math.abs(option_2);
+                }
+
+                if(option_2 < 0){
+                    option_2 = produit + Math.abs(option_1);
+                }
+
                 return [option_1.toString(), option_2.toString()];
             },
             corrigerTest(){
+                /*console.log(localStorage.getItem("save"));*/
+                this.sauvegardeResultats();
                 for(i in this.test){
                     if(this.test[i].selectionUtilisateur === this.test[i].reponse){
                         this.note++;
@@ -234,6 +274,27 @@
                     this.commentaire_test = "Tu peux faire mieux, continue de t'entraîner!"
                 }
                 this.affichage = "correction";
+            },
+            sauvegardeResultats(){
+                /*console.log(this.tables[0].operations[0].tempsMoyen);*/
+                for(i in this.tables){
+                    for (j in this.tables[i].operations){
+                        for (l in this.test){
+                            if(this.test[l].nom === this.tables[i].nom && this.test[l].facteur === this.tables[i].operations[j].facteur){
+                                var reussites = parseInt(this.tables[i].operations[j].reussites);
+                                var erreurs = parseInt(this.tables[i].operations[j].erreurs);
+                                var ancienTempsMoyen = parseInt(this.tables[i].operations[j].tempsMoyen);
+                                if(this.test[l].selectionUtilisateur === this.test[l].reponse){
+                                    this.tables[i].operations[j].reussites = (reussites + 1).toString();
+                                }else{
+                                    this.tables[i].operations[j].erreurs = (erreurs + 1).toString();
+                                }
+                                this.tables[i].operations[j].tempsMoyen = (((reussites + erreurs) * ancienTempsMoyen + this.test[l].temps) / (reussites + erreurs + 1)).toString();
+                            }
+                        }
+                    }
+                }
+                localStorage.setItem("save", JSON.stringify(this.tables));
             }
 
         },
