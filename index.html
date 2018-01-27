@@ -30,7 +30,12 @@
                     <h4>Table de {{ table.nom }}</h4>
                     <ul>
                         <li v-for="operation in table.operations">
+                            <div class = "table_operation" v-bind:style="{ background: getColorForScore(operation.reussites, operation.erreurs) }">
                             {{ table.nom }} x {{ operation.facteur }} = {{ operation.produit }}
+                            <template v-if="operation.tempsMoyen === 0">
+
+                            </template>
+                            </div>
                         </li>
                     </ul>
                 </div>
@@ -38,9 +43,9 @@
             <template v-else-if="affichage === 'question'">
                 <h4>Question {{ compteur_q + 1 }}</h4>
                 <div class="intitule"> {{ test[compteur_q].intitule }} </div>
-                <button @click.prevent="prochaineQuestion(test[compteur_q].options[0])">{{ test[compteur_q].options[0] }}</button>
-                <button @click.prevent="prochaineQuestion(test[compteur_q].options[1])">{{ test[compteur_q].options[1] }}</button>
-                <button @click.prevent="prochaineQuestion(test[compteur_q].options[2])">{{ test[compteur_q].options[2] }}</button>
+                <div @click.prevent="prochaineQuestion(test[compteur_q].options[0])">{{ test[compteur_q].options[0] }}</div>
+                <div @click.prevent="prochaineQuestion(test[compteur_q].options[1])">{{ test[compteur_q].options[1] }}</div>
+                <div @click.prevent="prochaineQuestion(test[compteur_q].options[2])">{{ test[compteur_q].options[2] }}</div>
             </template>
             <template v-else-if="affichage === 'correction'">
                 <h4>Résultat du test</h4>
@@ -58,17 +63,19 @@
             </template>
             <!-- Un clic sur un de ces boutons ajoute ou retire une table dans laquelle piocher des opérations, pour l'entraînement (voir console) -->
             <template v-else-if="affichage === 'selectionTables'">
-                <button @click.prevent="modifierTablesRevision('1')">{{ 1 }}</button>
-                <button @click.prevent="modifierTablesRevision('2')">{{ 2 }}</button>
-                <button @click.prevent="modifierTablesRevision('3')">{{ 3 }}</button>
-                <button @click.prevent="modifierTablesRevision('4')">{{ 4 }}</button>
-                <button @click.prevent="modifierTablesRevision('5')">{{ 5 }}</button>
-                <button @click.prevent="modifierTablesRevision('6')">{{ 6 }}</button>
-                <button @click.prevent="modifierTablesRevision('7')">{{ 7 }}</button>
-                <button @click.prevent="modifierTablesRevision('8')">{{ 8 }}</button>
-                <button @click.prevent="modifierTablesRevision('9')">{{ 9 }}</button>
-                <button @click.prevent="modifierTablesRevision('10')">{{ 10 }}</button>
-                <button @click.prevent="lancerEntrainement"> Lancer l'entraînement</button>
+                <div class="table_selectors">
+                    <div @click.prevent="modifierTablesRevision('1')">{{ 1 }}</div>
+                    <div @click.prevent="modifierTablesRevision('2')">{{ 2 }}</div>
+                    <div @click.prevent="modifierTablesRevision('3')">{{ 3 }}</div>
+                    <div @click.prevent="modifierTablesRevision('4')">{{ 4 }}</div>
+                    <div @click.prevent="modifierTablesRevision('5')">{{ 5 }}</div>
+                    <div @click.prevent="modifierTablesRevision('6')">{{ 6 }}</div>
+                    <div @click.prevent="modifierTablesRevision('7')">{{ 7 }}</div>
+                    <div @click.prevent="modifierTablesRevision('8')">{{ 8 }}</div>
+                    <div @click.prevent="modifierTablesRevision('9')">{{ 9 }}</div>
+                    <div @click.prevent="modifierTablesRevision('10')">{{ 10 }}</div>
+                </div>
+                <!--<button @click.prevent="lancerEntrainement"> Lancer l'entraînement</button>-->
             </template>
 
         </div>
@@ -90,6 +97,8 @@
             startTime: 0,
             affichage: "home"
         },
+
+        //:style="{ background-color: getColorForScore(operation.reussites, operation.erreurs) }"
         methods: {
             chargementDonnees(){
                 if(localStorage.getItem("save") === null){
@@ -295,6 +304,30 @@
                     }
                 }
                 localStorage.setItem("save", JSON.stringify(this.tables));
+            },
+            getColorForScore: function(nbreussites, nbfautes){
+                
+                nbreussites = parseInt(nbreussites);
+                nbfautes = parseInt(nbfautes);
+
+                var nbtotal = nbreussites + nbfautes;
+
+                var red = 255;
+                var green = 255;
+                var blue = 0;
+
+                if(nbreussites > nbfautes){
+                    red = Math.floor(( nbfautes / nbtotal ) * 255);
+                    console.log("rgb(" + red + ", " + green + ", "+ blue + ");");
+                }else if (nbreussites < nbfautes){
+                    green = Math.floor(( nbreussites / nbtotal ) * 255);
+                    console.log("rgb(" + red + ", " + green + ", "+ blue + ");");
+                }else if (nbreussites === 0 && nbfautes === 0){
+                    blue = 255;
+                }
+
+                return "rgb(" + red + ", " + green + ", "+ blue + ")";
+
             }
 
         },
