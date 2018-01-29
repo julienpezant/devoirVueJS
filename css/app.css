@@ -1,10 +1,33 @@
 body{
-    background : #262626;
+    background : url('ressources/background/background.jpg');
+    background-attachment: fixed;
     color: white;
+    font-family: 'Indie Flower', cursive;
 }
 
 .main{
     text-align: center;
+}
+
+/* Home */
+
+.main .bouton_home, .main a{
+    -webkit-transition: 0.2s;
+}
+
+.bouton_home:hover{
+    background-color: rgb(127, 216, 76);
+}
+
+.bouton_home a{
+    font-size: 25px;
+    color: white;
+    text-decoration: none;
+}
+
+.bouton_home:hover a{
+    color: #262626;
+    font-size: 25px;
 }
 
 /* Evaluation */
@@ -13,25 +36,32 @@ body{
     margin-top: 90px;
 }
 
-h4{
-    font-size: 72px;
+h1, h4{
     font-variant: small-caps;
 }
 
+h1{
+    font-size: 72px;
+}
+
+h4{
+    font-size: 60px;
+}
+
 .main .intitule{
-    font-size: 56px;
+    font-size: 72px;
     display: block;
     width: 100%;
     border: none;
     background-color: transparent;
-    margin-top: 20px;
     margin:0;
+    margin-top: 120px;
 }
 
 .main .intitule:hover{
     background-color: transparent;
     color: white;
-    font-size: 56px;
+    font-size: 72px;
     cursor: default;
 }
 
@@ -39,13 +69,13 @@ h4{
     display: inline-block;
     width: 200px;
     border: solid 1px white;
-    background-color: dimgray;
+    background: rgba(105, 105, 105, 0.5);
     margin: 10px;
     margin-top: 150px;
     font-size: 30px;
     cursor: pointer;
     border-radius: 5px;
-    -webkit-transition: background font-size 0.2s;
+    -webkit-transition: 0.2s;
     height: 60px;
     vertical-align: middle;
     padding: auto;
@@ -73,8 +103,8 @@ li{
     cursor: default;
 }
 
-.main div:hover{
-    background-color: #8FE8DC;
+.main .question_option:hover{
+    background-color: rgb(127, 216, 76);
     color: #262626;
     font-size: 40px;
 }
@@ -85,9 +115,11 @@ li{
     width: 90%;
     padding:0;
     margin:0;
+    margin-top: 150px;
     height: 30%;
     border: none;
     background: none;
+    transition: 0s;
 }
 
 .main .table_selectors div{
@@ -98,6 +130,17 @@ li{
     background: transparent;
     font-size: 30px;
     color: white;
+    cursor: default;
+}
+
+.main .table_selectors .table_selector{
+    width: 15%;
+}
+
+.main .table_selector:hover{
+    background-color: rgb(127, 216, 76);
+    color: #262626;
+    font-size: 40px;
 }
 
 /* Resultats */
@@ -106,24 +149,27 @@ li{
     font-size: 10px;
     margin:0;
     padding:0;
-    width: 8%;
+    width: 20%;
     margin: 5px;
     height: 100%;
+    transition: 0s;
+    background: rgba(105, 105, 105, 0.5);
+    transition: background-color 0.2s;
 }
 
 .main .table-multi:hover{
-    background: dimgray;
+    background: rgba(105, 105, 105, 0.8);
     font-size: 10px;
     color:white;
     cursor: default;
 }
 
 .main .table-multi h4{
-    font-size: 18px;;
+    font-size: 20px;;
 }
 
-.main .table-multi li div{
-    font-size:12px;
+.main .table-multi li .table_operation{
+    font-size:24px;
     width:90%;
     text-align: center;
     height: 40px;
@@ -136,6 +182,24 @@ li{
     padding:0;
     margin:0;
 }
+
+.main .res_mauvais, .main .res_mauvais:hover{
+    background: #F8696B;
+}
+
+.main .res_moyen, .main .res_moyen:hover{
+    background: #FCBF7B;
+}
+
+.main .res_assez_bien, .main .res_assez_bien:hover{
+    background: #CCDD82;
+}
+
+.main .res_bien, .main .res_bien:hover{
+    background: #63BE7B; 
+}
+
+/* Barre de navigation */
 
 .navbar{
     background-color: lightgray;
