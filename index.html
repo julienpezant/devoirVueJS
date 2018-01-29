@@ -18,19 +18,31 @@
 <body>
     <div id="app">
         <div class="navbar">
+            <div class="container_logo">
+                <!-- Logo? -->
+            </div>
             <ul class="nav navbar-nav">
-                <li><a href="#" @click.prevent="evaluer">Evaluation</a></li>
-                <li><a href="#" @click.prevent="entrainer">Entrainement</a></li>
-                <li><a href="#" @click.prevent="obtenirResultats">Résultats</a></li>
+                <li class="navbar-nav-element"><a href="#" @click.prevent="evaluer">Evaluation</a></li>
+                <li class="navbar-nav-element"><a href="#" @click.prevent="entrainer">Entrainement</a></li>
+                <li class="navbar-nav-element"><a href="#" @click.prevent="obtenirResultats">Résultats</a></li>
             </ul>
         </div>
         <div class="main">
-            <template v-if="affichage == 'resultats'">
+
+            <h1 class="nom_page">{{ nomPage }}</h1>
+
+            <template v-if="affichage === 'home'">
+                <div class="bouton_home bouton_home_evaluation"><a href="#" @click.prevent="evaluer">S'évaluer</a></div>
+                <div class="bouton_home bouton_home_entrainement"><a href="#" @click.prevent="entrainer">S'entraîner</a></div>
+                <div class="bouton_home bouton_home_resultats"><a href="#" @click.prevent="obtenirResultats">Voir les résultats</a></div>
+            </template>
+
+            <template v-if="affichage === 'resultats'">
                 <div class="table-multi" v-for="table in tables">
                     <h4>Table de {{ table.nom }}</h4>
                     <ul>
-                        <li v-for="operation in table.operations">
-                            <div class = "table_operation" v-bind:style="{ background: getColorForScore(operation.reussites, operation.erreurs) }">
+                        <li class="container_table_operation" v-for="operation in table.operations">
+                            <div class = "table_operation" v-bind:class = "getColorForScore(operation.reussites, operation.erreurs, operation.tempsMoyen)">
                             {{ table.nom }} x {{ operation.facteur }} = {{ operation.produit }}
                             <template v-if="operation.tempsMoyen === 0">
 
@@ -40,42 +52,47 @@
                     </ul>
                 </div>
             </template>
+
             <template v-else-if="affichage === 'question'">
                 <h4>Question {{ compteur_q + 1 }}</h4>
                 <div class="intitule"> {{ test[compteur_q].intitule }} </div>
-                <div @click.prevent="prochaineQuestion(test[compteur_q].options[0])">{{ test[compteur_q].options[0] }}</div>
-                <div @click.prevent="prochaineQuestion(test[compteur_q].options[1])">{{ test[compteur_q].options[1] }}</div>
-                <div @click.prevent="prochaineQuestion(test[compteur_q].options[2])">{{ test[compteur_q].options[2] }}</div>
+                <div class="question_option" @click.prevent="prochaineQuestion(test[compteur_q].options[0])">{{ test[compteur_q].options[0] }}</div>
+                <div class="question_option" @click.prevent="prochaineQuestion(test[compteur_q].options[1])">{{ test[compteur_q].options[1] }}</div>
+                <div class="question_option" @click.prevent="prochaineQuestion(test[compteur_q].options[2])">{{ test[compteur_q].options[2] }}</div>
             </template>
+
             <template v-else-if="affichage === 'correction'">
-                <h4>Résultat du test</h4>
-                <p>Tu as eu {{ note }} réponses correctes sur 10. {{ commentaire_test }} </p>
+                <h4>Résultats</h4>
+                <p class="commentaire_test">Tu as eu {{ note }} réponses correctes sur 10. {{ commentaire_test }} </p>
                 <ul>
                     <li v-for="reponse in test">
                         <template v-if="reponse.reponse === reponse.selectionUtilisateur">
-                            <div class="correction bonneReponse">{{ reponse.intitule }} = {{ reponse.reponse }} est la bonne réponse!</div>
+                            <div class="correction bonneReponse">
+                            <span class="bonneReponse_operation">{{ reponse.intitule }} = {{ reponse.reponse }}</span> est la bonne réponse!
+                            </div>
                         </template>
                         <template v-else="reponse.reponse === reponse.selectionUtilisateur">
-                            <div class="correction mauvaiseReponse">{{ reponse.intitule }} = {{ reponse.selectionUtilisateur }} n'est la bonne réponse. La bonne réponse était {{ reponse.reponse }}.</div>
+                            <div class="correction mauvaiseReponse">
+                            <span class="mauvaisereponse_choix">{{ reponse.intitule }} = {{ reponse.selectionUtilisateur }} n'est la bonne réponse.</span><span class="mauvaiseReponse_solution"> La bonne réponse était {{ reponse.reponse }}.</span>
+                            </div>
                         </template>
                     </li>
                 </ul>
             </template>
-            <!-- Un clic sur un de ces boutons ajoute ou retire une table dans laquelle piocher des opérations, pour l'entraînement (voir console) -->
+
             <template v-else-if="affichage === 'selectionTables'">
                 <div class="table_selectors">
-                    <div @click.prevent="modifierTablesRevision('1')">{{ 1 }}</div>
-                    <div @click.prevent="modifierTablesRevision('2')">{{ 2 }}</div>
-                    <div @click.prevent="modifierTablesRevision('3')">{{ 3 }}</div>
-                    <div @click.prevent="modifierTablesRevision('4')">{{ 4 }}</div>
-                    <div @click.prevent="modifierTablesRevision('5')">{{ 5 }}</div>
-                    <div @click.prevent="modifierTablesRevision('6')">{{ 6 }}</div>
-                    <div @click.prevent="modifierTablesRevision('7')">{{ 7 }}</div>
-                    <div @click.prevent="modifierTablesRevision('8')">{{ 8 }}</div>
-                    <div @click.prevent="modifierTablesRevision('9')">{{ 9 }}</div>
-                    <div @click.prevent="modifierTablesRevision('10')">{{ 10 }}</div>
+                    <div class="table_selector" @click.prevent="modifierTablesRevision('1')">{{ 1 }}</div>
+                    <div class="table_selector" @click.prevent="modifierTablesRevision('2')">{{ 2 }}</div>
+                    <div class="table_selector" @click.prevent="modifierTablesRevision('3')">{{ 3 }}</div>
+                    <div class="table_selector" @click.prevent="modifierTablesRevision('4')">{{ 4 }}</div>
+                    <div class="table_selector" @click.prevent="modifierTablesRevision('5')">{{ 5 }}</div>
+                    <div class="table_selector" @click.prevent="modifierTablesRevision('6')">{{ 6 }}</div>
+                    <div class="table_selector" @click.prevent="modifierTablesRevision('7')">{{ 7 }}</div>
+                    <div class="table_selector" @click.prevent="modifierTablesRevision('8')">{{ 8 }}</div>
+                    <div class="table_selector" @click.prevent="modifierTablesRevision('9')">{{ 9 }}</div>
+                    <div class="table_selector" @click.prevent="modifierTablesRevision('10')">{{ 10 }}</div>
                 </div>
-                <!--<button @click.prevent="lancerEntrainement"> Lancer l'entraînement</button>-->
             </template>
 
         </div>
@@ -93,13 +110,15 @@
             note: 0,
             commentaire_test: "",
             compteur_q: 0,
-            /*times: [0,0,0,0,0,0,0,0,0,0],*/
             startTime: 0,
+            nomPage: "Nom de l'application",
             affichage: "home"
         },
 
-        //:style="{ background-color: getColorForScore(operation.reussites, operation.erreurs) }"
         methods: {
+            /*
+            Charge les données sauvegardées dans LocaleStorage si elles existent, charge le contenu d'un json si non.
+            */
             chargementDonnees(){
                 if(localStorage.getItem("save") === null){
                     $.getJSON( "files/save/save.json", function( data ) {
@@ -111,8 +130,12 @@
                 }else{
                     console.log("save found");
                     this.tables = JSON.parse(localStorage.getItem("save"));
+                    console.log(JSON.stringify(this.tables, null, 2));
                 }
             },
+            /*
+            Réinitialise les variables permettant le déroulement d'un test
+            */
             resetTest(){
                 this.compteur_q = 0;
                 this.note = 0;
@@ -122,10 +145,12 @@
                 this.startTime = 0;
                 this.tables_a_reviser = ["1","2","3","4","5","6","7","8","9","10"];
             },
+            /*
+            Passe à la prochaine question
+            */
             prochaineQuestion: function(previous_answer){
                 this.test[this.compteur_q].selectionUtilisateur = previous_answer;
                 this.test[this.compteur_q].temps = Date.now() - this.startTime;
-                /*this.times[this.compteur_q] = Date.now() - this.startTime;*/
 
                 this.compteur_q++;
                 this.startTime = Date.now();
@@ -134,74 +159,144 @@
                     this.corrigerTest();
                 }
             },
+            /*
+            Affiche les tables de multiplication (et les résultats de l'utilisateur)
+            */
             obtenirResultats(){
                 this.resetTest();
+                this.nomPage = "Tables de multiplication"
                 this.affichage = "resultats";
             },
+            /*
+            Lance un entrainement
+            */
             entrainer(){
                 this.resetTest();
+                this.nomPage = "Entraînement"
                 this.affichage = "selectionTables"
             },
-            lancerEntrainement(){
+            /*
+            Initialise l'entrainement
+            */
+            initialiserEntrainement(){
                 this.affichage = "question";
                 this.startTime = Date.now();
                 this.genererTest();
             },
+            /*
+            Modifie tables_a_reviser pour garder uniquement la table concernée par l'entrainement
+            */
             modifierTablesRevision: function(value){
-                this.isActive = !this.isActive;
-                if($.inArray(value, this.tables_a_reviser) === -1){
-                    this.tables_a_reviser.push(value.toString());
-                }else{
-                    var index = this.tables_a_reviser.indexOf(value);
-                    this.tables_a_reviser.splice(index, 1);
-                }
-                console.log(this.tables_a_reviser);
+
+                //ci-dessous version table unique
+
+                this.tables_a_reviser = [value];
+                this.initialiserEntrainement();
             },
+            /*
+            Lance une évaluation
+            */
             evaluer(){
                 this.resetTest();
+                this.nomPage = "Évaluation"
                 this.affichage = "question";
                 this.startTime = Date.now();
                 this.genererTest();
             },
+            /*
+            Initialise une évaluation
+            */
             genererTest(){
                 this.obtenirTablesTest();
                 for(i = 0; i < 10; i++){
                     this.genererChoix(); 
                 }   
             },
+            /*
+            Retourne les opérations adaptées au test. Prise en compte du nombre d'erreurs et du temps de réponse.
+            On place des doublons d'opérations dans une table pour augmenter les chances qu'on a de tomber dessus avec une
+            sélection aléatoire.
+            */
             obtenirTablesTest(){
+
+                var tmptables = [];
+
                 for(indextable_r in this.tables_a_reviser){
                     for(indextable_t in this.tables){
                         if(this.tables_a_reviser[indextable_r] === this.tables[indextable_t].nom){
-                            this.tables_evaluation.push(JSON.parse(JSON.stringify(this.tables[indextable_t])));
+                            for (indexop in this.tables[indextable_t].operations){
+                                var op = JSON.parse(JSON.stringify(this.tables[indextable_t].operations[indexop]));
+                                op.table = this.tables[indextable_t].nom;
+                                tmptables.push(op);
+                            }
                         }
                     }
                 }
+
+                /*
+                Ajout de doublons pour les opérations problématiques
+                */
+                for(index in tmptables){
+                    var reussites = parseInt(tmptables[index].reussites);
+                    var erreurs = parseInt(tmptables[index].erreurs);
+
+                    var tempsMoyen = parseInt(tmptables[index].tempsMoyen);
+
+                    var val_maitrise = erreurs - reussites;
+
+                    if(val_maitrise > 0){
+                        for (i = 0; i < val_maitrise; i++){
+                            this.tables_evaluation.push(tmptables[index]);
+                        }
+                    }else{
+                        this.tables_evaluation.push(tmptables[index]);
+                    }
+
+                    /*
+                    si le temps moyen de réponse est supérieur à 7 secondes, on part du principe que l'opération n'est pas maitrisée (choix arbitraire)
+                    on ajoute donc un doublon à la liste
+                    */
+                    if(tempsMoyen > 700){
+                        this.tables_evaluation.push(tmptables[index]);
+                    }
+                }
             },
+            /*
+            Génère des fausses réponses pour les opérations du test
+            */
             genererChoix(){
 
-                //on sélectionne aléatoirement une opération dans les tables possibles, c'est à changer ultérieurement
-                var index_table = Math.floor(Math.random()* this.tables_evaluation.length);
-                var table = this.tables_evaluation[index_table];
-                var index_operation = Math.floor(Math.random()* table.operations.length);
-                var operation = table.operations[index_operation];
+                //on sélectionne aléatoirement une opération possible
 
-                var intitule = table.nom + " x " + operation.facteur;
+                var index_operation = Math.floor(Math.random()* this.tables_evaluation.length);
+                var operation = this.tables_evaluation[index_operation];
+
+                var intitule = operation.table + " x " + operation.facteur;
                 var reponse = operation.produit;
 
                 //génération des options
-                var options = this.genererFauxResultat(table.nom, operation.facteur, reponse);
+                var options = this.genererFauxResultat(operation.table, operation.facteur, reponse);
                 options.push(reponse);
 
                 //on mélange les options qui seront proposés à l'utilisateur
                 options = this.melangerChoix(options);
 
                 //on retire l'operation des choix possibles (pour éviter les doublons de questions)
-                this.tables_evaluation[index_table].operations.splice(index_operation, 1);
+
+                var i = this.tables_evaluation.length;
+                while(i--){
+                    if(this.tables_evaluation[i].table === operation.table && this.tables_evaluation[i].produit === reponse && this.tables_evaluation[i].facteur === operation.facteur){
+                        this.tables_evaluation.splice(i,1);
+
+                    }
+                }
 
                 //ajout de la question et des choix au test
-                this.test.push({ intitule:intitule, nom: table.nom, facteur: operation.facteur, reponse:reponse, options:options, selectionUtilisateur:"-1", temps: 0});
+                this.test.push({ intitule:intitule, nom: operation.table, facteur: operation.facteur, reponse:reponse, options:options, selectionUtilisateur:"-1", temps: 0});
             },
+            /*
+            Mélange les réponses proposées pour une opération
+            */
             melangerChoix: function(options){
                 var j, x, i;
                 for (i = options.length - 1; i > 0; i--) {
@@ -212,6 +307,9 @@
                 }
                 return options;
             },
+            /*
+            Génère un faux résultat pour une opération donnée
+            */
             genererFauxResultat: function(nom, facteur, produit){
                 var produit = parseInt(produit); //1
                 var nom = parseInt(nom); //1
@@ -265,8 +363,10 @@
 
                 return [option_1.toString(), option_2.toString()];
             },
+            /*
+            Vérifie les choix de l'utilisateur après le test et le note
+            */
             corrigerTest(){
-                /*console.log(localStorage.getItem("save"));*/
                 this.sauvegardeResultats();
                 for(i in this.test){
                     if(this.test[i].selectionUtilisateur === this.test[i].reponse){
@@ -284,8 +384,10 @@
                 }
                 this.affichage = "correction";
             },
+            /*
+            Sauvegarde les résultats du test
+            */
             sauvegardeResultats(){
-                /*console.log(this.tables[0].operations[0].tempsMoyen);*/
                 for(i in this.tables){
                     for (j in this.tables[i].operations){
                         for (l in this.test){
@@ -305,28 +407,42 @@
                 }
                 localStorage.setItem("save", JSON.stringify(this.tables));
             },
-            getColorForScore: function(nbreussites, nbfautes){
+            /*
+            Retourne une classe (permettant un affichage avec couleur variable) en fonction de l'efficacité de l'utilisateur à résoudre une opération
+            */
+            getColorForScore: function(nbreussites, nbfautes, tempsMoyen){
                 
                 nbreussites = parseInt(nbreussites);
                 nbfautes = parseInt(nbfautes);
+                tempsMoyen = parseFloat(tempsMoyen)
 
-                var nbtotal = nbreussites + nbfautes;
+                /*var nbtotal = nbreussites + nbfautes;*/
 
-                var red = 255;
+                /*var red = 255;
                 var green = 255;
-                var blue = 0;
+                var blue = 0;*/
 
                 if(nbreussites > nbfautes){
-                    red = Math.floor(( nbfautes / nbtotal ) * 255);
-                    console.log("rgb(" + red + ", " + green + ", "+ blue + ");");
+                    /*red = Math.floor(( nbfautes / nbtotal ) * 255);
+                    console.log("rgb(" + red + ", " + green + ", "+ blue + ");");*/
+                    if(nbreussites > nbfautes * 2 && tempsMoyen < 700){
+                        return 'res_bien';
+                    }
+                    return 'res_assez_bien';
                 }else if (nbreussites < nbfautes){
-                    green = Math.floor(( nbreussites / nbtotal ) * 255);
-                    console.log("rgb(" + red + ", " + green + ", "+ blue + ");");
+                    /*green = Math.floor(( nbreussites / nbtotal ) * 255);
+                    console.log("rgb(" + red + ", " + green + ", "+ blue + ");");*/
+                    if(nbreussites * 2 < nbfautes || tempsMoyen > 700){
+                        return 'res_mauvais'
+                    }
+                    return 'res_assez_mauvais';
                 }else if (nbreussites === 0 && nbfautes === 0){
-                    blue = 255;
+                    /*blue = 255;*/
+                    return 'res_inexistant';
                 }
 
-                return "rgb(" + red + ", " + green + ", "+ blue + ")";
+                /*return "rgb(" + red + ", " + green + ", "+ blue + ")";*/
+                return 'res_moyen';
 
             }
 
