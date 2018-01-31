@@ -198,7 +198,7 @@
             chargementDonnees(){
                 /*localStorage.clear();*/
                 /*console.log(localStorage.getItem("save"));*/
-                if(localStorage.getItem("save") === null){
+                if(localStorage.getItem("save") === null || localStorage.getItem("abascus") === null){
                     /*this.affichage = "intro";*/
                     $.getJSON( "files/save/save.json", function( data ) {
                         console.log("no save");
