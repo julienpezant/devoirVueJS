@@ -18,84 +18,124 @@
 </head>
 <body>
     <div id="app">
-        <div class="navbar">
-            <div class="container_logo">
-                <!-- Logo? -->
+
+        <div class="page-wrapper">
+
+            <div class="navbar">
+                <div class="container_logo">
+                    <!-- Logo? -->
+                </div>
+                <ul class="nav navbar-nav">
+                    <li class="navbar-nav-element"><a href="#" @click.prevent="evaluer">Evaluation</a></li>
+                    <li class="navbar-nav-element"><a href="#" @click.prevent="entrainer">Entrainement</a></li>
+                    <li class="navbar-nav-element"><a href="#" @click.prevent="obtenirResultats">Résultats</a></li>
+                </ul>
             </div>
-            <ul class="nav navbar-nav">
-                <li class="navbar-nav-element"><a href="#" @click.prevent="evaluer">Evaluation</a></li>
-                <li class="navbar-nav-element"><a href="#" @click.prevent="entrainer">Entrainement</a></li>
-                <li class="navbar-nav-element"><a href="#" @click.prevent="obtenirResultats">Résultats</a></li>
-            </ul>
-        </div>
-        <div class="main">
+            <div class="main">
 
-            <h1 class="nom_page">{{ nomPage }}</h1>
+                <h1 class="nom_page">{{ nomPage }}</h1>
 
-            <template v-if="affichage === 'home'">
-                <div class="bouton_home bouton_home_evaluation"><a href="#" @click.prevent="evaluer">S'évaluer</a></div>
-                <div class="bouton_home bouton_home_entrainement"><a href="#" @click.prevent="entrainer">S'entraîner</a></div>
-                <div class="bouton_home bouton_home_resultats"><a href="#" @click.prevent="obtenirResultats">Voir les résultats</a></div>
-            </template>
+                <template v-if="affichage === 'home'">
+                    <template v-if="abascus === 'true'">
+                        <div class="fin-histoire">
+                            <p v-for="phrase in contenu_fin">
+                            {{ phrase }}
+                            </p>
+                        </div>
+                    </template>
+                    <template v-else-if="abascus === 'false'">
+                        <div class="debut-histoire">
+                            <p v-for="phrase in contenu_intro">
+                            {{ phrase }}
+                            </p>
+                        </div>
+                    </template>
+                    <div class="bouton_home bouton_home_evaluation"><a href="#" @click.prevent="evaluer">S'évaluer</a></div>
+                    <div class="bouton_home bouton_home_entrainement"><a href="#" @click.prevent="entrainer">S'entraîner</a></div>
+                    <div class="bouton_home bouton_home_resultats"><a href="#" @click.prevent="obtenirResultats">Voir les résultats</a></div>
+                </template>
 
-            <template v-if="affichage === 'resultats'">
-                <div class="table-multi" v-for="table in tables">
-                    <h4>Table de {{ table.nom }}</h4>
+
+
+                <!--<template v-else-if="affichage === 'intro'">
+                    <div class="intro">
+                        <p class="intro_txt">
+                            {{ contenu_intro[compteur_q] }}
+                        </p>
+                        <div class="intro_suivant" @click.prevent="introSuivant">Lire la suite</div>
+                    </div>
+                </template>-->
+
+
+
+                <template v-if="affichage === 'resultats'">
+                    <div class="exam-fin-wrapper">
+                        <template v-if="validationAbascus">
+                            <p> Tu as obtenu tous les indices et l'Abascus est enfin à ta portée. Néanmoins, une dernière épreuve t'attend... </p>
+                            <div class="test-final-button" @click.prevent="evaluationFinale">Lancer le test final</div>
+                        </template>
+                        <template v-else>
+                            <p> Tu n'as pas encore obtenu tous les indices menant à l'Abascus. </p>
+                        </template>
+                    </div>
+                    <div class="table-multi" v-for="table in tables">
+                        <h4>Table de {{ table.nom }}</h4>
+                        <div class="indice-abascus">
+                            {{ getIndice(table.nom) }}
+                        </div>
+                        <ul>
+                            <li class="container_table_operation" v-for="operation in table.operations">
+                                <div class = "table_operation" v-bind:class = "getColorForScore(operation.reussites, operation.erreurs, operation.tempsMoyen)">
+                                {{ table.nom }} x {{ operation.facteur }} = {{ operation.produit }}
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </template>
+
+                <template v-else-if="affichage === 'question'">
+                    <h4>Question {{ compteur_q + 1 }}</h4>
+                    <div class="intitule"> {{ test[compteur_q].intitule }} </div>
+                    <div class="question_option" @click.prevent="prochaineQuestion(test[compteur_q].options[0])">{{ test[compteur_q].options[0] }}</div>
+                    <div class="question_option" @click.prevent="prochaineQuestion(test[compteur_q].options[1])">{{ test[compteur_q].options[1] }}</div>
+                    <div class="question_option" @click.prevent="prochaineQuestion(test[compteur_q].options[2])">{{ test[compteur_q].options[2] }}</div>
+                </template>
+
+                <template v-else-if="affichage === 'correction'">
+                    <h4>Résultats</h4>
+                    <p class="commentaire_test">Tu as eu {{ note }} réponses correctes sur {{ nbQuestionsMax }}. {{ commentaire_test }} </p>
                     <ul>
-                        <li class="container_table_operation" v-for="operation in table.operations">
-                            <div class = "table_operation" v-bind:class = "getColorForScore(operation.reussites, operation.erreurs, operation.tempsMoyen)">
-                            {{ table.nom }} x {{ operation.facteur }} = {{ operation.produit }}
-                            <template v-if="operation.tempsMoyen === 0">
-
+                        <li v-for="reponse in test">
+                            <template v-if="reponse.reponse === reponse.selectionUtilisateur">
+                                <div class="correction bonneReponse">
+                                <span class="bonneReponse_operation">{{ reponse.intitule }} = {{ reponse.reponse }}</span> est la bonne réponse!
+                                </div>
                             </template>
-                            </div>
+                            <template v-else="reponse.reponse === reponse.selectionUtilisateur">
+                                <div class="correction mauvaiseReponse">
+                                <span class="mauvaisereponse_choix">{{ reponse.intitule }} = {{ reponse.selectionUtilisateur }} n'est la bonne réponse.</span><span class="mauvaiseReponse_solution"> La bonne réponse était {{ reponse.reponse }}.</span>
+                                </div>
+                            </template>
                         </li>
                     </ul>
-                </div>
-            </template>
+                </template>
 
-            <template v-else-if="affichage === 'question'">
-                <h4>Question {{ compteur_q + 1 }}</h4>
-                <div class="intitule"> {{ test[compteur_q].intitule }} </div>
-                <div class="question_option" @click.prevent="prochaineQuestion(test[compteur_q].options[0])">{{ test[compteur_q].options[0] }}</div>
-                <div class="question_option" @click.prevent="prochaineQuestion(test[compteur_q].options[1])">{{ test[compteur_q].options[1] }}</div>
-                <div class="question_option" @click.prevent="prochaineQuestion(test[compteur_q].options[2])">{{ test[compteur_q].options[2] }}</div>
-            </template>
+                <template v-else-if="affichage === 'selectionTables'">
+                    <div class="table_selectors">
+                        <div class="table_selector" @click.prevent="modifierTablesRevision('1')">{{ 1 }}</div>
+                        <div class="table_selector" @click.prevent="modifierTablesRevision('2')">{{ 2 }}</div>
+                        <div class="table_selector" @click.prevent="modifierTablesRevision('3')">{{ 3 }}</div>
+                        <div class="table_selector" @click.prevent="modifierTablesRevision('4')">{{ 4 }}</div>
+                        <div class="table_selector" @click.prevent="modifierTablesRevision('5')">{{ 5 }}</div>
+                        <div class="table_selector" @click.prevent="modifierTablesRevision('6')">{{ 6 }}</div>
+                        <div class="table_selector" @click.prevent="modifierTablesRevision('7')">{{ 7 }}</div>
+                        <div class="table_selector" @click.prevent="modifierTablesRevision('8')">{{ 8 }}</div>
+                        <div class="table_selector" @click.prevent="modifierTablesRevision('9')">{{ 9 }}</div>
+                        <div class="table_selector" @click.prevent="modifierTablesRevision('10')">{{ 10 }}</div>
+                    </div>
+                </template>
 
-            <template v-else-if="affichage === 'correction'">
-                <h4>Résultats</h4>
-                <p class="commentaire_test">Tu as eu {{ note }} réponses correctes sur 10. {{ commentaire_test }} </p>
-                <ul>
-                    <li v-for="reponse in test">
-                        <template v-if="reponse.reponse === reponse.selectionUtilisateur">
-                            <div class="correction bonneReponse">
-                            <span class="bonneReponse_operation">{{ reponse.intitule }} = {{ reponse.reponse }}</span> est la bonne réponse!
-                            </div>
-                        </template>
-                        <template v-else="reponse.reponse === reponse.selectionUtilisateur">
-                            <div class="correction mauvaiseReponse">
-                            <span class="mauvaisereponse_choix">{{ reponse.intitule }} = {{ reponse.selectionUtilisateur }} n'est la bonne réponse.</span><span class="mauvaiseReponse_solution"> La bonne réponse était {{ reponse.reponse }}.</span>
-                            </div>
-                        </template>
-                    </li>
-                </ul>
-            </template>
-
-            <template v-else-if="affichage === 'selectionTables'">
-                <div class="table_selectors">
-                    <div class="table_selector" @click.prevent="modifierTablesRevision('1')">{{ 1 }}</div>
-                    <div class="table_selector" @click.prevent="modifierTablesRevision('2')">{{ 2 }}</div>
-                    <div class="table_selector" @click.prevent="modifierTablesRevision('3')">{{ 3 }}</div>
-                    <div class="table_selector" @click.prevent="modifierTablesRevision('4')">{{ 4 }}</div>
-                    <div class="table_selector" @click.prevent="modifierTablesRevision('5')">{{ 5 }}</div>
-                    <div class="table_selector" @click.prevent="modifierTablesRevision('6')">{{ 6 }}</div>
-                    <div class="table_selector" @click.prevent="modifierTablesRevision('7')">{{ 7 }}</div>
-                    <div class="table_selector" @click.prevent="modifierTablesRevision('8')">{{ 8 }}</div>
-                    <div class="table_selector" @click.prevent="modifierTablesRevision('9')">{{ 9 }}</div>
-                    <div class="table_selector" @click.prevent="modifierTablesRevision('10')">{{ 10 }}</div>
-                </div>
-            </template>
-
+            </div>
         </div>
     </div>
 
@@ -113,27 +153,73 @@
             compteur_q: 0,
             startTime: 0,
             nomPage: "Abacus",
-            affichage: "home"
+            affichage: "home",
+            nbQuestionsMax: 10,
+            contenu_intro: [
+                "Il y a bien longtemps, dans un pays lointain, vivait un roi bon et généreux.",
+                "Le roi était apprécié de ses sujets, mais son grand âge l’inquiétait.",
+                "Il craignait que son fils, le prince, ne soit pas capable de prendre sa place le moment venu.",
+                "Le vieux roi décida alors de mettre son fils au défi, afin de le préparer à lui succéder.",
+                "« Le royaume a besoin d’un roi fort, puissant, mais surtout intelligent »",
+                "« La légende dit que seul le plus érudit des hommes peut trouver et utiliser l’Abacus »",
+                "« Cet artefact magique octroie de grands pouvoirs et protège celui qui le possède. »",
+                "« Pour le trouver, rends-toi dans les terres du royaume à la recherche des gardiens des tables »",
+                "« Chaque gardien détient un indice qui mène à l’Abacus, mais tu devras le vaincre à l’aide de ton esprit. »",
+                "« Pars mon fils, terrasse les dix gardiens et rapporte moi l’Abacus. Ainsi, je saurai que tu es digne d’être roi. »"
+                ]
+            ,
+            contenu_fin: [
+                "Après des jours de recherche, le prince rentra finalement au château, muni de l’Abacus.",
+                "Le roi, radieux, dit à son fils : « Aujourd’hui, je sais que le futur du royaume est entre de bonnes mains. »",
+                "« Les gardiens t’ont laissé leur trésor et ton pouvoir n’a d’égal que tes connaissances »",
+                "« Le jour venu, rien ne pourra t’empêcher de devenir un grand roi »",
+                "« Mais pour le moment, il est l’heure de fêter ton retour comme il se doit »",
+                "Le roi fit préparer dresser de gigantesques tables et ordonna que l’on prépare les meilleurs spécialité du royaume",
+                "C’est ainsi que s’achève la quête de l’Abacus."
+                ]
+            ,
+            abascus_pieces: [false,false,false,false,false,false,false,false,false,false],
+            abascus: 'false'
         },
-
+        computed: {
+            validationAbascus: function(){
+                for (i in this.abascus_pieces){
+                    if(!this.abascus_pieces[i]){
+                        return false;
+                    }
+                }
+                return true;
+            }
+        },
         methods: {
             /*
             Charge les données sauvegardées dans LocaleStorage si elles existent, charge le contenu d'un json si non.
             */
             chargementDonnees(){
+                /*localStorage.clear();*/
+                /*console.log(localStorage.getItem("save"));*/
                 if(localStorage.getItem("save") === null){
+                    /*this.affichage = "intro";*/
                     $.getJSON( "files/save/save.json", function( data ) {
                         console.log("no save");
-
                         this.tables = data.tables;
-                        localStorage.setItem("save", JSON.stringify(data.tables));
+                        localStorage.setItem("abascus", 'false');
+                        localStorage.setItem("save", JSON.stringify(data.tables, null, 2));
                     });
                 }else{
                     console.log("save found");
+                    this.abascus = localStorage.getItem('abascus');
+                    console.log(this.abascus);
                     this.tables = JSON.parse(localStorage.getItem("save"));
-                    console.log(JSON.stringify(this.tables, null, 2));
                 }
             },
+            /*introSuivant(){
+                this.compteur_q++;
+                if (this.compteur_q === 10){
+                    this.affichage = "home";
+                    this.compteur_q = 0;
+                }
+            },*/
             /*
             Réinitialise les variables permettant le déroulement d'un test
             */
@@ -156,7 +242,7 @@
                 this.compteur_q++;
                 this.startTime = Date.now();
 
-                if(this.compteur_q === 10){
+                if(this.compteur_q === this.nbQuestionsMax){
                     this.corrigerTest();
                 }
             },
@@ -182,6 +268,7 @@
             initialiserEntrainement(){
                 this.affichage = "question";
                 this.startTime = Date.now();
+                this.nbQuestionsMax = 10;
                 this.genererTest();
             },
             /*
@@ -201,15 +288,27 @@
                 this.resetTest();
                 this.nomPage = "Évaluation"
                 this.affichage = "question";
+                this.nbQuestionsMax = 10;
                 this.startTime = Date.now();
                 this.genererTest();
+            },
+            /*
+            Lance l'évaluation finale (40 questions)
+            */
+            evaluationFinale(){
+                this.resetTest();
+                this.nomPage = "Évaluation finale"
+                this.affichage = "question";
+                this.nbQuestionsMax = 40;
+                this.startTime = Date.now();
+                this.genererTest(); 
             },
             /*
             Initialise une évaluation
             */
             genererTest(){
                 this.obtenirTablesTest();
-                for(i = 0; i < 10; i++){
+                for(i = 0; i < this.nbQuestionsMax; i++){
                     this.genererChoix(); 
                 }   
             },
@@ -257,7 +356,7 @@
                     si le temps moyen de réponse est supérieur à 7 secondes, on part du principe que l'opération n'est pas maitrisée (choix arbitraire)
                     on ajoute donc un doublon à la liste
                     */
-                    if(tempsMoyen > 700){
+                    if(tempsMoyen > 7000){
                         this.tables_evaluation.push(tmptables[index]);
                     }
                 }
@@ -374,15 +473,29 @@
                         this.note++;
                     }
                 }
-                if(this.note === 10){
-                    this.commentaire_test = "Félicitations!"
-                }else if(this.note >= 8){
-                    this.commentaire_test = "Bien joué!"
-                }else if(this.note >= 6){
-                    this.commentaire_test = "Pas mal!"
+
+                if(this.nbQuestionsMax === 40){
+                    if(this.note === this.nbQuestionsMax){
+                        this.commentaire_test = "Féliciations, tu as réussi le test final! L'Abascus est à toi!";
+                        this.abascus = true;
+                        localStorage.setItem("abascus",'true');
+                    }else{
+                        this.commentaire_test = "Si près du but... Mais seul un résultat parfait permet d'obtenir l'Abascus. Essaye encore!";
+                        this.abascus = false;
+                        localStorage.setItem("abascus",'false');
+                    }
                 }else{
-                    this.commentaire_test = "Tu peux faire mieux, continue de t'entraîner!"
+                    if(this.note === this.nbQuestionsMax){
+                        this.commentaire_test = "Félicitations!"
+                    }else if(this.note >= this.nbQuestionsMax * 0.8){
+                        this.commentaire_test = "Bien joué!"
+                    }else if(this.note >= this.nbQuestionsMax * 0.6){
+                        this.commentaire_test = "Pas mal!"
+                    }else{
+                        this.commentaire_test = "Tu peux faire mieux, continue de t'entraîner!"
+                    }
                 }
+
                 this.affichage = "correction";
             },
             /*
@@ -406,7 +519,31 @@
                         }
                     }
                 }
-                localStorage.setItem("save", JSON.stringify(this.tables));
+
+                this.obtenirPieces();
+
+                localStorage.setItem("save", JSON.stringify(this.tables, null, 2));
+            },
+            obtenirPieces(){
+                for(i in this.tables){
+
+                    var compteur_validation = 0;
+
+                    for (j in this.tables[i].operations){
+
+                        var nbreussites = parseInt(this.tables[i].operations[j].reussites);
+                        var nbfautes = parseInt(this.tables[i].operations[j].erreurs);
+                        var tempsMoyen = parseFloat(this.tables[i].operations[j].tempsMoyen)
+
+                        if(nbreussites > nbfautes * 2 && tempsMoyen < 7000){
+                            compteur_validation++;
+                        }
+                    }
+
+                    if(compteur_validation === 11){
+                        this.abascus_pieces[i] = true;
+                    }
+                }
             },
             /*
             Retourne une classe (permettant un affichage avec couleur variable) en fonction de l'efficacité de l'utilisateur à résoudre une opération
@@ -426,14 +563,14 @@
                 if(nbreussites > nbfautes){
                     /*red = Math.floor(( nbfautes / nbtotal ) * 255);
                     console.log("rgb(" + red + ", " + green + ", "+ blue + ");");*/
-                    if(nbreussites > nbfautes * 2 && tempsMoyen < 700){
+                    if(nbreussites > nbfautes * 2 && tempsMoyen < 7000){
                         return 'res_bien';
                     }
                     return 'res_assez_bien';
                 }else if (nbreussites < nbfautes){
                     /*green = Math.floor(( nbreussites / nbtotal ) * 255);
                     console.log("rgb(" + red + ", " + green + ", "+ blue + ");");*/
-                    if(nbreussites * 2 < nbfautes || tempsMoyen > 700){
+                    if(nbreussites * 2 < nbfautes || tempsMoyen > 7000){
                         return 'res_mauvais'
                     }
                     return 'res_assez_mauvais';
@@ -445,6 +582,15 @@
                 /*return "rgb(" + red + ", " + green + ", "+ blue + ")";*/
                 return 'res_moyen';
 
+            },
+            getIndice(nomtable){
+                this.obtenirPieces();
+                var index = parseInt(nomtable) - 1;
+                if(this.abascus_pieces[index]){
+                    return "Tu as obtenu l'indice de cette table.";
+                }else{
+                    return "Tu n'as pas encore obtenu l'indice de cette table.";
+                }
             }
 
         },
