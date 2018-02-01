@@ -19,11 +19,12 @@
 <body>
     <div id="app">
 
-        <div class="page-wrapper">
+        <div id="page-wrapper" v-bind:class = "wallpaper">
 
             <div class="navbar">
                 <div class="container_logo">
                     <!-- Logo? -->
+                    <div class="bouton_home"><a href="#" @click.prevent="pageAccueil">Remplacer par logo</a></div>
                 </div>
                 <ul class="nav navbar-nav">
                     <li class="navbar-nav-element"><a href="#" @click.prevent="evaluer">Evaluation</a></li>
@@ -36,14 +37,14 @@
                 <h1 class="nom_page">{{ nomPage }}</h1>
 
                 <template v-if="affichage === 'home'">
-                    <template v-if="abascus === 'true'">
+                    <template v-if="abacus === 'true'">
                         <div class="fin-histoire">
                             <p v-for="phrase in contenu_fin">
                             {{ phrase }}
                             </p>
                         </div>
                     </template>
-                    <template v-else-if="abascus === 'false'">
+                    <template v-else-if="abacus === 'false'">
                         <div class="debut-histoire">
                             <p v-for="phrase in contenu_intro">
                             {{ phrase }}
@@ -57,30 +58,40 @@
 
 
 
-                <!--<template v-else-if="affichage === 'intro'">
+                <template v-else-if="affichage === 'intro'">
                     <div class="intro">
                         <p class="intro_txt">
                             {{ contenu_intro[compteur_q] }}
                         </p>
-                        <div class="intro_suivant" @click.prevent="introSuivant">Lire la suite</div>
+                        <div class="intro_suivant" @click.prevent="introSuivant"> {{ bouton_narration }} </div>
                     </div>
-                </template>-->
+                </template>
+
+                <template v-else-if="affichage === 'fin'">
+                    <div class="fin">
+                        <p class="fin">
+                            {{ contenu_fin[compteur_q] }}
+                        </p>
+                        <div class="intro_suivant" @click.prevent="finSuivant"> {{ bouton_narration }} </div>
+                    </div>
+                </template>
 
 
 
                 <template v-if="affichage === 'resultats'">
                     <div class="exam-fin-wrapper">
-                        <template v-if="validationAbascus">
-                            <p> Tu as obtenu tous les indices et l'Abascus est enfin à ta portée. Néanmoins, une dernière épreuve t'attend... </p>
+                        <template v-if="validationAbacus">
+                            <p v-if="abacus === 'false'"> Tu as obtenu tous les indices et l'Abacus est enfin à ta portée. Néanmoins, une dernière épreuve t'attend... </p>
+                            <p v-else-if="abacus === 'true'"> Tu as déjà obtenu l'Abacus, mais si tu le souhaites, tu peux repasser le test final.</p>
                             <div class="test-final-button" @click.prevent="evaluationFinale">Lancer le test final</div>
                         </template>
                         <template v-else>
-                            <p> Tu n'as pas encore obtenu tous les indices menant à l'Abascus. </p>
+                            <p> Tu n'as pas encore obtenu tous les indices menant à l'Abacus. </p>
                         </template>
                     </div>
                     <div class="table-multi" v-for="table in tables">
                         <h4>Table de {{ table.nom }}</h4>
-                        <div class="indice-abascus">
+                        <div class="indice-abacus">
                             {{ getIndice(table.nom) }}
                         </div>
                         <ul>
@@ -118,6 +129,7 @@
                             </template>
                         </li>
                     </ul>
+                    <div class="bouton_fin_test"><a href="#" @click.prevent="obtenirResultats">Voir tous mes résultats</a></div>
                 </template>
 
                 <template v-else-if="affichage === 'selectionTables'">
@@ -175,16 +187,19 @@
                 "« Le jour venu, rien ne pourra t’empêcher de devenir un grand roi »",
                 "« Mais pour le moment, il est l’heure de fêter ton retour comme il se doit »",
                 "Le roi fit préparer dresser de gigantesques tables et ordonna que l’on prépare les meilleurs spécialité du royaume",
-                "C’est ainsi que s’achève la quête de l’Abacus."
+                "C’est ainsi que s’achève la quête de l’Abacus.",
+                "FIN"
                 ]
             ,
-            abascus_pieces: [false,false,false,false,false,false,false,false,false,false],
-            abascus: 'false'
+            abacus_pieces: [false,false,false,false,false,false,false,false,false,false],
+            abacus: 'false',
+            wallpaper: 'default-wallpaper',
+            bouton_narration: 'Lire la suite'
         },
         computed: {
-            validationAbascus: function(){
-                for (i in this.abascus_pieces){
-                    if(!this.abascus_pieces[i]){
+            validationAbacus: function(){
+                for (i in this.abacus_pieces){
+                    if(!this.abacus_pieces[i]){
                         return false;
                     }
                 }
@@ -197,29 +212,60 @@
             */
             chargementDonnees(){
                 /*localStorage.clear();*/
-                /*console.log(localStorage.getItem("save"));*/
-                if(localStorage.getItem("save") === null || localStorage.getItem("abascus") === null){
-                    /*this.affichage = "intro";*/
-                    $.getJSON( "files/save/save.json", function( data ) {
+                if(localStorage.getItem("save") === null || localStorage.getItem("abacus") === null){
+                    /*$.getJSON( "files/save/save.json", function( data ) {
                         console.log("no save");
+                        console.log(JSON.stringify(data.tables, null, 2));
                         this.tables = data.tables;
-                        localStorage.setItem("abascus", 'false');
+                        this.abacus = 'false';
+                        localStorage.setItem("abacus", 'false');
+                        localStorage.setItem("save", JSON.stringify(data.tables, null, 2));
+                    });*/
+
+                    $.getJSON( "files/save/save.json").then(function( data ) {
+                        console.log("no save");
+                        /*console.log(JSON.stringify(data.tables, null, 2));*/
+                        this.tables = data.tables;
+                        this.abacus = 'false';
+                        localStorage.setItem("abacus", 'false');
                         localStorage.setItem("save", JSON.stringify(data.tables, null, 2));
                     });
+                    /*console.log(" reponse: " + JSON.stringify(this.tables, null, 2));*/
+
+                    this.affichage = "intro";
                 }else{
                     console.log("save found");
-                    this.abascus = localStorage.getItem('abascus');
-                    console.log(this.abascus);
+                    this.abacus = localStorage.getItem('abacus');
                     this.tables = JSON.parse(localStorage.getItem("save"));
                 }
             },
-            /*introSuivant(){
+            pageAccueil(){
+                this.resetTest();
+                this.nomPage = "Abacus"
+                this.affichage = "home";
+                this.wallpaper = 'default-wallpaper';
+            },
+            introSuivant(){
                 this.compteur_q++;
+                if (this.compteur_q === 9){
+                    this.bouton_narration = 'Commencer';
+                }
                 if (this.compteur_q === 10){
                     this.affichage = "home";
                     this.compteur_q = 0;
+                    window.location.reload();
                 }
-            },*/
+            },
+            finSuivant(){
+                this.compteur_q++;
+                if(this.compteur_q === 7){
+                    this.bouton_narration = 'Retourner au menu principal';
+                }
+                if (this.compteur_q === 8){
+                    this.affichage = "home";
+                    this.compteur_q = 0;
+                }
+            },
             /*
             Réinitialise les variables permettant le déroulement d'un test
             */
@@ -253,6 +299,7 @@
                 this.resetTest();
                 this.nomPage = "Tables de multiplication"
                 this.affichage = "resultats";
+                this.wallpaper = 'default-wallpaper';
             },
             /*
             Lance un entrainement
@@ -261,6 +308,7 @@
                 this.resetTest();
                 this.nomPage = "Entraînement"
                 this.affichage = "selectionTables"
+                this.wallpaper = 'training-wallpaper';
             },
             /*
             Initialise l'entrainement
@@ -288,6 +336,7 @@
                 this.resetTest();
                 this.nomPage = "Évaluation"
                 this.affichage = "question";
+                this.wallpaper = 'test-wallpaper';
                 this.nbQuestionsMax = 10;
                 this.startTime = Date.now();
                 this.genererTest();
@@ -299,7 +348,7 @@
                 this.resetTest();
                 this.nomPage = "Évaluation finale"
                 this.affichage = "question";
-                this.nbQuestionsMax = 40;
+                this.nbQuestionsMax = 20;
                 this.startTime = Date.now();
                 this.genererTest(); 
             },
@@ -474,15 +523,19 @@
                     }
                 }
 
-                if(this.nbQuestionsMax === 40){
+                if(this.nbQuestionsMax === 20){
                     if(this.note === this.nbQuestionsMax){
-                        this.commentaire_test = "Féliciations, tu as réussi le test final! L'Abascus est à toi!";
-                        this.abascus = true;
-                        localStorage.setItem("abascus",'true');
+                        /*this.commentaire_test = "Félicitations, tu as réussi le test final! L'Abacus est à toi!";*/
+                        this.abacus = 'true';
+                        this.compteur_q = 0;
+                        localStorage.setItem("abacus",'true');
+                        this.bouton_narration= 'Lire la suite';
+                        this.affichage="fin";
+                        return;
                     }else{
-                        this.commentaire_test = "Si près du but... Mais seul un résultat parfait permet d'obtenir l'Abascus. Essaye encore!";
-                        this.abascus = false;
-                        localStorage.setItem("abascus",'false');
+                        this.commentaire_test = "Si près du but... Mais seul un résultat parfait permet d'obtenir l'Abacus. Essaye encore!";
+                        this.abacus = 'false';
+                        localStorage.setItem("abacus",'false');
                     }
                 }else{
                     if(this.note === this.nbQuestionsMax){
@@ -541,7 +594,7 @@
                     }
 
                     if(compteur_validation === 11){
-                        this.abascus_pieces[i] = true;
+                        this.abacus_pieces[i] = true;
                     }
                 }
             },
@@ -586,7 +639,7 @@
             getIndice(nomtable){
                 this.obtenirPieces();
                 var index = parseInt(nomtable) - 1;
-                if(this.abascus_pieces[index]){
+                if(this.abacus_pieces[index]){
                     return "Tu as obtenu l'indice de cette table.";
                 }else{
                     return "Tu n'as pas encore obtenu l'indice de cette table.";
