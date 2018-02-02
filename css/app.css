@@ -12,10 +12,14 @@ body{
 /* Home */
 
 .main .bouton_home, .main a{
-    -webkit-transition: 0.2s;
+    transition: 0.2s;
 }
 
-.bouton_home:hover{
+.main .debut-histoire{
+    display: none;
+}
+
+.main .bouton_home:hover{
     background-color: rgb(127, 216, 76);
 }
 
@@ -33,7 +37,7 @@ body{
 /* Evaluation */
 
 .main{
-    margin-top: 90px;
+    margin-top: 5%;
 }
 
 h1, h4{
@@ -55,7 +59,7 @@ h4{
     border: none;
     background-color: transparent;
     margin:0;
-    margin-top: 120px;
+    margin-top: 5%;
 }
 
 .main .intitule:hover{
@@ -71,11 +75,11 @@ h4{
     border: solid 1px white;
     background: rgba(105, 105, 105, 0.5);
     margin: 10px;
-    margin-top: 150px;
+    margin-top: 10%;
     font-size: 30px;
     cursor: pointer;
     border-radius: 5px;
-    -webkit-transition: 0.2s;
+    transition: 0.2s;
     height: 60px;
     vertical-align: middle;
     padding: auto;
@@ -110,6 +114,41 @@ li{
 }
 
 /* Entrainement */
+
+.commentaire_test{
+    margin-top: 20px;
+    font-size: 24px;
+}
+
+.main .reponses{
+    margin: 0;
+    padding: 0;
+}
+
+.main .bonneReponse, .main .mauvaiseReponse{
+    text-align: center;
+    font-size: 20px;
+    height: 25px;
+}
+
+.main .correction .bonneReponse_operation{
+    color: rgb(135, 255, 167);
+}
+
+.main .correction .mauvaisereponse_choix{
+    color: rgb(255, 135, 135);
+}
+
+.main .bouton_fin_test{
+    margin-top: 1%;
+    width: 300px;
+}
+
+.main .bouton_fin_test a{
+    color: white;
+    text-decoration: none;
+    font-size: 25px
+}
 
 .main .table_selectors{
     width: 90%;
@@ -199,8 +238,55 @@ li{
     background: #63BE7B; 
 }
 
+.main .exam-fin-wrapper{
+    display: block;
+    width: 81.5%;
+    margin: auto;
+}
+
+.main .indice-abacus{
+    display: block;
+    height: 100%;
+    width: 80%;
+    margin: auto;
+    font-size: 15px;
+    line-height: 20px;
+    padding: 5px;
+}
+
 /* Barre de navigation */
 
 .navbar{
-    background-color: lightgray;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: none;
+}
+
+.navbar ul{
+    height: 100%;
+}
+
+.navbar li a:hover{
+    color: black;
+}
+
+.navbar li a{
+    color: white;
+    height: 60px;
+    font-size: 30px;
+    line-height: 30px;
+    transition: 0.2s;
+}
+
+.bouton_home a{
+    height: 30px;
+    padding: 0;
+    margin: 0;
+}
+
+.bouton_home img{
+    height: 100%;
+}
+
+.bouton_home:hover img{
+    filter: brightness(0%)
 }
