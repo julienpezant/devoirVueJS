@@ -13,13 +13,30 @@ html{
  #app{
     min-height:100vh;
  }
- 
- #page-wrapper{
+
+#page-wrapper{
     min-height:100vh;
     width:100%;
-    background : url('ressources/background/background.jpg');
     background-attachment: fixed;
- }
+    transition: 0.2s;
+}
+ 
+ .default-wallpaper{
+    background : url('ressources/background/background.jpg');
+     transition:0.2s;
+}
+
+.training-wallpaper{
+    background: url('ressources/background/chateau.jpg')
+}
+
+.training-wallpaper{
+    background: url('ressources/background/chateau.jpg')
+}
+
+.test-wallpaper{
+    background: url('ressources/background/test.jpg');
+}
 
 .main{
     text-align: center;
@@ -273,7 +290,7 @@ li{
 /* Barre de navigation */
 
 .navbar{
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(255, 255, 255, 0.7);
     border: none;
     transition: 0.2s;
 }
@@ -283,25 +300,33 @@ li{
 }
 
 .navbar .navbar-nav-element li:hover, .navbar .navbar-nav-element a:hover, .bouton_home:hover img {
-    background: black;
-    border-bottom: solid 1px white;
+    background: transparent;
+    border-bottom: solid 1px green;
     transition: 0.2s;
 }
 
+.navbar .navbar-nav-element:focus{
+    background: transparent;
+}
+
 .navbar li a{
-    color: white;
+    color: green;
     height: 60px;
     font-size: 30px;
     line-height: 30px;
     transition: 0.2s;
 }
 
-.bouton_home a{
-    height: 30px;
-    padding: 0;
-    margin: 0;
+.bouton_home{
+    border: none;
+    border-color: transparent;
 }
 
-.bouton_home img{
+.navbar .bouton_home a{
+    border-color: transparent;
+}
+
+.navbar .bouton_home img{
     height: 100%;
+    border: 0;
 }
