@@ -230,6 +230,14 @@ li{
     font-size: 40px;
 }
 
+.reponses{
+    background: rgba(105,105,105,0.5);
+    border: solid 1px white;
+    border-radius: 5px;
+    display: inline-block;
+
+}
+
 /* Resultats */
 
 .main .table-multi{
