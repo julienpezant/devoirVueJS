@@ -1,9 +1,25 @@
-body{
-    background : url('ressources/background/background.jpg');
-    background-attachment: fixed;
+html{
+    height:100%;
+ }
+ 
+ body{
+    /*background : url('ressources/background/background.jpg');
+    background-attachment: fixed;*/
     color: white;
     font-family: 'Indie Flower', cursive;
-}
+    min-height:100%;
+ }
+ 
+ #app{
+    min-height:100vh;
+ }
+ 
+ #page-wrapper{
+    min-height:100vh;
+    width:100%;
+    background : url('ressources/background/background.jpg');
+    background-attachment: fixed;
+ }
 
 .main{
     text-align: center;
@@ -259,14 +275,17 @@ li{
 .navbar{
     background-color: rgba(0, 0, 0, 0.7);
     border: none;
+    transition: 0.2s;
 }
 
 .navbar ul{
     height: 100%;
 }
 
-.navbar li a:hover{
-    color: black;
+.navbar .navbar-nav-element li:hover, .navbar .navbar-nav-element a:hover, .bouton_home:hover img {
+    background: black;
+    border-bottom: solid 1px white;
+    transition: 0.2s;
 }
 
 .navbar li a{
@@ -285,8 +304,4 @@ li{
 
 .bouton_home img{
     height: 100%;
-}
-
-.bouton_home:hover img{
-    filter: brightness(0%)
 }
