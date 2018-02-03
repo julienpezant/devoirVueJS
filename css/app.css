@@ -10,7 +10,7 @@ html{
     min-height:100%;
  }
  
- #app{
+#app{
     min-height:100vh;
  }
 
@@ -21,7 +21,7 @@ html{
     transition: 0.2s;
 }
  
- .default-wallpaper{
+.default-wallpaper{
     background : url('ressources/background/background.jpg');
      transition:0.2s;
 }
@@ -40,6 +40,21 @@ html{
 
 .main{
     text-align: center;
+}
+
+/* Introduction */
+
+.intro_txt{
+    font-size: 40px;
+    width: 100%;
+}
+
+.main .intro{
+    width: 90%;
+    border:0;
+    background: transparent;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 /* Home */
