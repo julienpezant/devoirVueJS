@@ -42,14 +42,14 @@ html{
     text-align: center;
 }
 
-/* Introduction */
+/* Introduction - Conclusion */
 
-.intro_txt{
+.intro_txt, fin_txt{
     font-size: 40px;
     width: 100%;
 }
 
-.main .intro{
+.main .intro, .main .fin{
     width: 90%;
     border:0;
     background: transparent;
