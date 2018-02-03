@@ -21,6 +21,7 @@
 
         <div id="page-wrapper" v-bind:class = "wallpaper">
 
+            <!-- Menu de navigation -->
             <div class="navbar">
                 <ul class="nav navbar-nav">
                     <li class="bouton_home"><a href="#" @click.prevent="pageAccueil"><img src="css/ressources/logo/abacus_logo.png"></a></li>
@@ -33,6 +34,7 @@
 
                 <h1 class="nom_page">{{ nomPage }}</h1>
 
+                <!-- Accueil -->
                 <template v-if="affichage === 'home'">
                     <template v-if="abacus === 'true'">
                         <div class="fin-histoire">
@@ -53,8 +55,7 @@
                     <div class="bouton_home bouton_home_resultats"><a href="#" @click.prevent="obtenirResultats">Voir les résultats</a></div>
                 </template>
 
-
-
+                <!-- Introduction -->
                 <template v-else-if="affichage === 'intro'">
                     <div class="intro">
                         <p class="intro_txt">
@@ -64,6 +65,7 @@
                     </div>
                 </template>
 
+                <!-- Conclusion -->
                 <template v-else-if="affichage === 'fin'">
                     <div class="fin">
                         <p class="fin">
@@ -73,8 +75,7 @@
                     </div>
                 </template>
 
-
-
+                <!-- Tables et résultats généraux -->
                 <template v-if="affichage === 'resultats'">
                     <div class="exam-fin-wrapper">
                         <template v-if="validationAbacus">
@@ -101,6 +102,7 @@
                     </div>
                 </template>
 
+                <!-- Question et ses options -->
                 <template v-else-if="affichage === 'question'">
                     <h4>Question {{ compteur_q + 1 }}</h4>
                     <div class="intitule"> {{ test[compteur_q].intitule }} </div>
@@ -109,6 +111,7 @@
                     <div class="question_option" @click.prevent="prochaineQuestion(test[compteur_q].options[2])">{{ test[compteur_q].options[2] }}</div>
                 </template>
 
+                <!-- Correction d'un test -->
                 <template v-else-if="affichage === 'correction'">
                     <h4>Résultats</h4>
                     <p class="commentaire_test">Tu as eu {{ note }} réponses correctes sur {{ nbQuestionsMax }}. {{ commentaire_test }} </p>
@@ -121,14 +124,16 @@
                             </template>
                             <template v-else="reponse.reponse === reponse.selectionUtilisateur">
                                 <div class="correction mauvaiseReponse">
-                                <span class="mauvaisereponse_choix">{{ reponse.intitule }} = {{ reponse.selectionUtilisateur }} n'est la bonne réponse.</span><span class="mauvaiseReponse_solution"> La bonne réponse était {{ reponse.reponse }}.</span>
+                                <span class="mauvaisereponse_choix">{{ reponse.intitule }} = {{ reponse.selectionUtilisateur }}</span> n'est la bonne réponse.<span class="mauvaiseReponse_solution"> La bonne réponse était <span class="bonneReponse_operation">{{ reponse.reponse }}</span>.</span>
                                 </div>
                             </template>
                         </li>
                     </ul>
+                    <br>
                     <div class="bouton_fin_test"><a href="#" @click.prevent="obtenirResultats">Voir tous mes résultats</a></div>
                 </template>
 
+                <!-- Sélection d'une table de révision -->
                 <template v-else-if="affichage === 'selectionTables'">
                     <div class="table_selectors">
                         <div class="table_selector" @click.prevent="modifierTablesRevision('1')">{{ 1 }}</div>
@@ -205,29 +210,17 @@
         },
         methods: {
             /*
-            Charge les données sauvegardées dans LocaleStorage si elles existent, charge le contenu d'un json si non.
+            Charge les données sauvegardées dans LocaleStorage si elles existent, charge le contenu d'un json sinon.
             */
             chargementDonnees(){
-                /*localStorage.clear();*/
                 if(localStorage.getItem("save") === null || localStorage.getItem("abacus") === null){
-                    /*$.getJSON( "files/save/save.json", function( data ) {
-                        console.log("no save");
-                        console.log(JSON.stringify(data.tables, null, 2));
-                        this.tables = data.tables;
-                        this.abacus = 'false';
-                        localStorage.setItem("abacus", 'false');
-                        localStorage.setItem("save", JSON.stringify(data.tables, null, 2));
-                    });*/
-
                     $.getJSON( "files/save/save.json").then(function( data ) {
                         console.log("no save");
-                        /*console.log(JSON.stringify(data.tables, null, 2));*/
                         this.tables = data.tables;
                         this.abacus = 'false';
                         localStorage.setItem("abacus", 'false');
                         localStorage.setItem("save", JSON.stringify(data.tables, null, 2));
                     });
-                    /*console.log(" reponse: " + JSON.stringify(this.tables, null, 2));*/
 
                     this.affichage = "intro";
                 }else{
@@ -236,12 +229,18 @@
                     this.tables = JSON.parse(localStorage.getItem("save"));
                 }
             },
+            /*
+            Modification des données pour l'affichage de la page d'accueil
+            */
             pageAccueil(){
                 this.resetTest();
                 this.nomPage = "Abacus"
                 this.affichage = "home";
                 this.wallpaper = 'default-wallpaper';
             },
+            /*
+            Permet l'affichage de l'introduction, phrase par phrase (puis retour vers l'accueil)
+            */
             introSuivant(){
                 this.compteur_q++;
                 if (this.compteur_q === 9){
@@ -253,6 +252,9 @@
                     window.location.reload();
                 }
             },
+            /*
+            Permet l'affichage de la conclusion, phrase par phrase (puis retour vers l'accueil)
+            */
             finSuivant(){
                 this.compteur_q++;
                 if(this.compteur_q === 7){
@@ -320,9 +322,6 @@
             Modifie tables_a_reviser pour garder uniquement la table concernée par l'entrainement
             */
             modifierTablesRevision: function(value){
-
-                //ci-dessous version table unique
-
                 this.tables_a_reviser = [value];
                 this.initialiserEntrainement();
             },
@@ -365,6 +364,7 @@
             */
             obtenirTablesTest(){
 
+                //liste intermédiaire sans doublons
                 var tmptables = [];
 
                 for(indextable_r in this.tables_a_reviser){
@@ -520,9 +520,11 @@
                     }
                 }
 
+                /* L'évaluation finale (20 questions) est gérée comme un cas à part.
+                 Elle n'est validée que si toutes les réponses sont correctes.
+                 */
                 if(this.nbQuestionsMax === 20){
                     if(this.note === this.nbQuestionsMax){
-                        /*this.commentaire_test = "Félicitations, tu as réussi le test final! L'Abacus est à toi!";*/
                         this.abacus = 'true';
                         this.compteur_q = 0;
                         localStorage.setItem("abacus",'true');
@@ -535,6 +537,9 @@
                         localStorage.setItem("abacus",'false');
                     }
                 }else{
+                    /*
+                    Cas d'un test normal (entraînement ou évaluation)
+                    */
                     if(this.note === this.nbQuestionsMax){
                         this.commentaire_test = "Félicitations!"
                     }else if(this.note >= this.nbQuestionsMax * 0.8){
@@ -549,7 +554,7 @@
                 this.affichage = "correction";
             },
             /*
-            Sauvegarde les résultats du test
+            Sauvegarde les résultats du test dans LocalStorage
             */
             sauvegardeResultats(){
                 for(i in this.tables){
@@ -574,6 +579,10 @@
 
                 localStorage.setItem("save", JSON.stringify(this.tables, null, 2));
             },
+
+            /*
+            Teste si les tables sont validées, attribue une pièce/indice si c'est le cas
+            */
             obtenirPieces(){
                 for(i in this.tables){
 
@@ -604,35 +613,25 @@
                 nbfautes = parseInt(nbfautes);
                 tempsMoyen = parseFloat(tempsMoyen)
 
-                /*var nbtotal = nbreussites + nbfautes;*/
-
-                /*var red = 255;
-                var green = 255;
-                var blue = 0;*/
-
                 if(nbreussites > nbfautes){
-                    /*red = Math.floor(( nbfautes / nbtotal ) * 255);
-                    console.log("rgb(" + red + ", " + green + ", "+ blue + ");");*/
                     if(nbreussites > nbfautes * 2 && tempsMoyen < 7000){
                         return 'res_bien';
                     }
                     return 'res_assez_bien';
                 }else if (nbreussites < nbfautes){
-                    /*green = Math.floor(( nbreussites / nbtotal ) * 255);
-                    console.log("rgb(" + red + ", " + green + ", "+ blue + ");");*/
                     if(nbreussites * 2 < nbfautes || tempsMoyen > 7000){
                         return 'res_mauvais'
                     }
                     return 'res_assez_mauvais';
                 }else if (nbreussites === 0 && nbfautes === 0){
-                    /*blue = 255;*/
                     return 'res_inexistant';
                 }
-
-                /*return "rgb(" + red + ", " + green + ", "+ blue + ")";*/
                 return 'res_moyen';
 
             },
+            /*
+            Change l'affichage au dessus des tables si l'indice associé est obtenu.
+            */
             getIndice(nomtable){
                 this.obtenirPieces();
                 var index = parseInt(nomtable) - 1;
